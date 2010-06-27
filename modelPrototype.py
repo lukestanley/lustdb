@@ -1,3 +1,6 @@
+#Copyright Luke Stanley 2010
+#License: LGPL
+
 # __dict__ is used to get varible acceptable names and types from class instance
 # class init takes model parameters and compares with original
 class Model(dict):

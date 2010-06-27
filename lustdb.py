@@ -1,3 +1,6 @@
+#Copyright Luke Stanley 2010
+#License: LGPL
+
 from json import dumps, loads
 
 #import inspect

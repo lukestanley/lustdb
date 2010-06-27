@@ -2,9 +2,7 @@
 #License: LGPL
 
 from json import dumps, loads
-
-#import inspect
-import sys
+from sys import modules
 
 
 
@@ -13,7 +11,7 @@ db = {}
 
 #enableSmartDatabaseModels(parentglobalRef = globals())
 def getMainGlobals():
-	m = sys.modules['__main__']
+	m = modules['__main__']
 	md = dir(m)
 	fakeGlobals = {}
 	for ob in md:
@@ -46,16 +44,6 @@ def enableSmartDatabaseModels(parentglobalRef):
 
 
 filename = 'test1.json'
-
-
-
-"""
-starting with a JSON tree composed of
-dict, list and numerical or string values
-how can we go through each dict or list values reccursively
-and check for a key being present?
-"""
-#import inspect
 
 
 def replaceDumbModelInstances(child, parent=None, childKeyOrItem=None, modelInstances=None):
@@ -121,11 +109,7 @@ loadDB()
 
 enableSmartDatabaseModels(getMainGlobals())
 class dotlistify(list):
-	#__realappend__ = __append__
 	def append(self, value):
-		#if 'modelData' in dir(value):
-		#	value = value.modelData
-		
 		super(dotlistify, self).append(value)
 		saveDB()
 		print 'append!'
@@ -156,14 +140,7 @@ class dotdictify(dict):
 		if _loading == False:
 			#print '__setitem__', key, value
 			saveDB()
-	def append(self, value):
-		if isinstance(value,Model):
-			value = value.modelData
-		
-		x = self.__dict__
-		self.__dict__[len(x)] = value
-		saveDB()
-		print 'append!'
+			
 	def __getitem__(self, key):
 		found = self.get(key, dotdictify.marker)
 		if found is dotdictify.marker:
@@ -179,16 +156,7 @@ class dotdictify(dict):
 		
 	__setattr__ = __setitem__
 	__getattr__ = __getitem__
-	"""def __append__(self, key, value):
-		print 'append',key, value """
-	#__call__ = __getitem__
-	"""def __call__(self, *args):
-		print 'call', args
-		try: 
-			return dict[args]
-		except KeyError:
-			ret = dict[args] = self.function(*args)
-			return ret"""
+
 
 
 db = dotdictify(db)

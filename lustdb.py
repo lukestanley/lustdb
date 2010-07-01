@@ -1,15 +1,14 @@
 #Copyright Luke Stanley 2010
 #License: LGPL
 
-from json import dumps, loads
+try:
+	from simplejson import dumps, loads
+except ImportError:
+	from json import dumps, loads
 from sys import modules
 
+filename=''
 
-
-
-db = {}
-
-#enableSmartDatabaseModels(parentglobalRef = globals())
 def getMainGlobals():
 	m = modules['__main__']
 	md = dir(m)
@@ -43,8 +42,6 @@ def enableSmartDatabaseModels(parentglobalRef):
 	replaceDumbModelInstances(db, modelInstances = ModelInstances)
 
 
-filename = 'test1.json'
-
 
 def replaceDumbModelInstances(child, parent=None, childKeyOrItem=None, modelInstances=None):
 	if isinstance(child, dict):
@@ -74,21 +71,10 @@ def replaceDumbModelInstances(child, parent=None, childKeyOrItem=None, modelInst
 
 
 
-def loadDB():
-	global db
-	content = {}
-	try:
-		f = open(filename,'r')
-		content = loads(f.read())
-		f.close()
-	except:
-		pass
-	#print content
-	db = content
-	#print 'loadDB called'
-	
+
 def saveDB():
 	global db
+	global filename
 	#print db
 	f = open(filename,'w')
 	
@@ -97,22 +83,15 @@ def saveDB():
 	f.close()
 	#print 'saveDB called, saved as'
 	#print content
+	assert "__methods__" not in loads(content)
 
 _loading = True
-notdb = {'bigBang' :
-		  {'stars':
-			   {'planets': {}
-				}
-		   }
-}
-loadDB()
 
-enableSmartDatabaseModels(getMainGlobals())
 class dotlistify(list):
 	def append(self, value):
 		super(dotlistify, self).append(value)
 		saveDB()
-		print 'append!'
+		#print 'append!'
 	
 		
 class dotdictify(dict):
@@ -159,6 +138,36 @@ class dotdictify(dict):
 
 
 
-db = dotdictify(db)
+
+def loadDB(filenameVar='test1.json'):
+	global db
+	global filename
+	global _loading
+	filename = filenameVar
+	content = db
+	_loading = True
+	try:
+		f = open(filename,'r')
+		content = loads(f.read())
+		f.close()
+	except:
+		content = {}
+	#print content
+	db = content
+	#print 'loadDB called'
+	enableSmartDatabaseModels(getMainGlobals())
+	
+	
+	db = dotdictify(db)
+	_loading = False
+	return db
+notdb = {'bigBang' :
+		  {'stars':
+			   {'planets': {}
+				}
+		   }
+}
+db = {}
+loadDB()
 globals()['db'] = db
-_loading = False
+

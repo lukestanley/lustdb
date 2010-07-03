@@ -104,6 +104,8 @@ class dotdictify(dict):
 		elif isinstance(value, dict):
 			for key in value:
 				self.__setitem__(key, value[key])
+				#del self.__methods__
+				#del self.__members__
 		else:
 			raise TypeError, 'expected dict'
 
@@ -123,8 +125,11 @@ class dotdictify(dict):
 	def __getitem__(self, key):
 		found = self.get(key, dotdictify.marker)
 		if found is dotdictify.marker:
-			found = dotdictify()
-			dict.__setitem__(self, key, found)
+			if key not in ['__methods__','__members__']:
+				found = dotdictify()
+				dict.__setitem__(self, key, found)
+				
+				print 'setitem called in getitem for',key
 		#print '__getitem__', key, found
 		return found
 	def __repr__(self):
@@ -144,7 +149,7 @@ def loadDB(filenameVar='test1.json'):
 	global filename
 	global _loading
 	filename = filenameVar
-	content = db
+	#content = db
 	_loading = True
 	try:
 		f = open(filename,'r')
